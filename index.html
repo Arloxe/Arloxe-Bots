@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Bot Deck | Arloxe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- ======  STYLE BLOCK  ====== -->
+  <style>
+    /*  Guide: 4-space soft indents, blank lines between rules  */
+    :root{
+      --neon-1: #ff00ff;   /* hot-pink glow  */
+      --neon-2: #00ffff;   /* cyan glow      */
+      --bg: #0d0d0d;
+      --card: #1a1a1a;
+      --text: #e0e0e0;
+      --sub: #888;
+    }
+    *{ box-sizing: border-box; margin: 0; padding: 0; }
+    body{
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+    h1{
+      font-size: 2.2rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(60deg, var(--neon-1), var(--neon-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    /*  filter ribbon  */
+    .filter-bar{
+      display: flex;
+      gap: 0.6rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .filter-bar button{
+      background: transparent;
+      border: 2px solid var(--neon-1);
+      color: var(--neon-1);
+      padding: 0.5rem 1.2rem;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all .25s;
+    }
+    .filter-bar button:hover,
+    .filter-bar button.active{
+      background: var(--neon-1);
+      color: var(--bg);
+    }
+    /*  card grid  */
+    .grid{
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+      gap: 2rem;
+      width: 100%;
+      max-width: 75rem;
+    }
+    .card{
+      background: var(--card);
+      border: 1px solid var(--neon-1);
+      border-radius: 8px;
+      padding: 1.2rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform .3s, box-shadow .3s;
+    }
+    .card:hover{
+      transform: translateY(-6px);
+      box-shadow: 0 0 12px var(--neon-1), 0 0 24px var(--neon-2);
+    }
+    .avatar{
+      width: 8rem;
+      height: 8rem;
+      margin: 0 auto 1rem;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      background: linear-gradient(var(--card), var(--card)) padding-box,
+                  linear-gradient(45deg, var(--neon-1), var(--neon-2)) border-box;
+      overflow: hidden;
+      position: relative;
+    }
+    .avatar img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .4s;
+    }
+    .card:hover .avatar img{ transform: scale(1.15); }
+    .name{
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--neon-1);
+      margin-bottom: 0.3rem;
+    }
+    .tag{
+      display: inline-block;
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 12px;
+      margin-bottom: 0.6rem;
+    }
+    .tag.futa{ background: #3a0a3a; color: #ff99ff; }
+    .tag.female{ background: #0a3a3a; color: #99ffff; }
+    .bio{ font-size: 0.9rem; color: var(--sub); }
+    footer{
+      margin-top: 3rem;
+      font-size: 0.75rem;
+      color: var(--sub);
+    }
+  </style>
+</head>
+<body>
+  <h1>Bot Deck</h1>
+  <!-- ======  FILTER RIBBON  ====== -->
+  <div class="filter-bar">
+    <button class="active" data-set="all">All</button>
+    <button data-set="female">Female</button>
+    <button data-set="futa">Futa</button>
+  </div>
+  <!-- ======  CARD GRID  ====== -->
+  <div class="grid" id="grid"></div>
+  <!-- ======  FOOTER  ====== -->
+  <footer>gremlin coder naomi // v4.0</footer>
+  <!-- ======  SCRIPT BLOCK  ====== -->
+  <script>
+    /*  Guide: data first, functions later, blank lines between blocks  */
+    const botDB = [
+      {
+        name: "Miriam",
+        tag: "futa",
+        bio: "Your futanari ex-bully.  Still owns your lunch money.",
+        icon: "https://i.postimg.cc/338BJqbN/Miriam-Chibi-Futanari-No-BG.png",
+        href: "https://chub.ai/characters/Arloxe/miriam-your-futanari-ex-bully-558d41a9995b"
+      },
+      {
+        name: "Miriam",
+        tag: "female",
+        bio: "Your ex-bully.  Slightly less dangerous.",
+        icon: "https://i.postimg.cc/WpcmRYk2/Miriam-Chibi-Female-No-BG.png",
+        href: "https://chub.ai/characters/Arloxe/miriam-your-ex-bully-1191c2758e56"
+      },
+      {
+        name: "Mina",
+        tag: "futa",
+        bio: "Independent futa GF.  Will steal the covers and your heart.",
+        icon: "https://i.postimg.cc/vb4PRDfQ/Chibi-Futanari-No-BG.png",
+        href: "https://chub.ai/characters/Arloxe/mina-your-loving-independent-futanari-girlfriend-a43594d5281a"
+      },
+      {
+        name: "Mina",
+        tag: "female",
+        bio: "Independent girlfriend.  Will steal the covers and your heart.",
+        icon: "https://i.postimg.cc/9VMbTzxG/Chibi-Female-No-BG.png",
+        href: "https://chub.ai/characters/Arloxe/mina-your-loving-independent-girlfriend-399f21e8d5be"
+      },
+      {
+        name: "Seren",
+        tag: "futa",
+        bio: "Half-elf tsundere roommate.  Knocks before entering, never before judging.",
+        icon: "https://i.postimg.cc/VYgTfp61/Seren-Chibi-Futanari-Cheerleader-No-BG.png",
+        href: "https://chub.ai/characters/Arloxe/seren-your-futanari-half-elf-tsundere-dorm-roommate-da7d7c345f4c"
+      },
+      {
+        name: "Seren",
+        tag: "female",
+        bio: "Half-elf tsundere.  Practises her cheer routine on your self-esteem.",
+        icon: "https://i.postimg.cc/kqSp6B4T/Seren-Chibi-Female-Cheerleader-No-BG.png",
+        href: "https://chub.ai/characters/Arloxe/seren-your-half-elf-tsundere-dorm-roommate-9a08fc0c1d6c"
+      },
+      {
+        name: "Nora",
+        tag: "futa",
+        bio: "Left your brother for you.  Family dinners will be fun.",
+        icon: "https://i.postimg.cc/szwdsQQS/Nora-Chibi-Futa-No-BG.png",
+        href: "https://chub.ai/characters/Arloxe/nora-the-futanari-who-left-your-brother-in-order-to-have-you-b9a3b9a5763c"
+      },
+      {
+        name: "Nora",
+        tag: "female",
+        bio: "The girl who ghosted your brother.  Bring popcorn.",
+        icon: "https://i.postimg.cc/rcs6mVxH/Nora-Fem-Chibi-No-BG.png",
+        href: "https://chub.ai/characters/Arloxe/nora-the-girl-who-left-your-brother-in-order-to-have-you-8a26f90dd27b"
+      },
+      {
+        name: "Jaimie",
+        tag: "futa",
+        bio: "Broke futa friend.  Always ‘forgets’ her wallet, never forgets your birthday.",
+        icon: "https://i.postimg.cc/kJt43QJQ/Jaimie-Chibi-Futa-No-BG.png",
+        href: "https://chub.ai/characters/Arloxe/jaimie-your-broke-futanari-friend-that-always-forgets-her-wallet-requested-9f543844462b"
+      },
+      {
+        name: "Jaimie",
+        tag: "female",
+        bio: "Broke bestie.  Will repay you in exposure and memes.",
+        icon: "https://i.postimg.cc/R9ktF02C/Jaimie-Chibi-Fem-No-BG.png",
+        href: "https://chub.ai/characters/Arloxe/jaimie-your-broke-friend-that-always-forgets-her-wallet-requested-281e87701e88"
+      }
+    ];
+    /* ---------- render engine ---------- */
+    const grid = document.getElementById('grid');
+    function buildCards(list){
+      grid.innerHTML = '';
+      list.forEach(b => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.onclick = () => window.open(b.href, '_blank');
+        card.innerHTML = `
+          <div class="avatar">
+            <img src="${b.icon}" alt="${b.name}">
+          </div>
+          <div class="name">${b.name}</div>
+          <span class="tag ${b.tag}">${b.tag}</span>
+          <div class="bio">${b.bio}</div>`;
+        grid.appendChild(card);
+      });
+    }
+    /* ---------- filter handlers ---------- */
+    document.querySelectorAll('.filter-bar button').forEach(btn => {
+      btn.addEventListener('click', e => {
+        document.querySelectorAll('.filter-bar button').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        const set = e.target.dataset.set;
+        buildCards(set === 'all' ? botDB : botDB.filter(b => b.tag === set));
+      });
+    });
+    /* ---------- initial paint ---------- */
+    buildCards(botDB);
+  </script>
+</body>
+</html>
